@@ -14,15 +14,22 @@ public class MovementComponent : MonoBehaviour
     //Components
     private PlayerController playerController;
     private Rigidbody rigidbody;
+    private Animator PlayerAnimator;
 
     Vector2 inputVector = Vector2.zero;
     Vector3 MoveDirection = Vector3.zero;
 
-	private void Awake()
+    public readonly int movementXHash = Animator.StringToHash("MovementX");
+    public readonly int movementYHash = Animator.StringToHash("MovementY");
+    public readonly int isJumpingHash = Animator.StringToHash("isJumping");
+    public readonly int isRunningHash = Animator.StringToHash("isHashing");
+
+    private void Awake()
 	{
 
         playerController = GetComponent<PlayerController>();
         rigidbody = GetComponent<Rigidbody>();
+        PlayerAnimator = GetComponent<Animator>();
     }
     void Start()
     {
@@ -42,18 +49,22 @@ public class MovementComponent : MonoBehaviour
     public void OnMovement(InputValue value)
 	{
         inputVector = value.Get<Vector2>();
-	}
+        PlayerAnimator.SetFloat(movementXHash, inputVector.x);
+        PlayerAnimator.SetFloat(movementYHash, inputVector.y);
+    }
 
     public void OnJump(InputValue value)
     {
         playerController.isJumping = value.isPressed;
         rigidbody.AddForce((transform.up + MoveDirection) * JumpForce, ForceMode.Impulse);
+        PlayerAnimator.SetBool(isJumpingHash, playerController.isJumping);
 
     }
 
     public void OnRun(InputValue value)
     {
         playerController.isRunning = value.isPressed;
+        PlayerAnimator.SetBool(isRunningHash, playerController.isRunning);
     }
 
 	private void OnCollisionEnter(Collision collision)
