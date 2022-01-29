@@ -15,16 +15,18 @@ public class MovementComponent : MonoBehaviour
     private PlayerController playerController;
     private Rigidbody rigidbody;
     private Animator PlayerAnimator;
+    public GameObject followTarget;
 
     Vector2 inputVector = Vector2.zero;
     Vector3 MoveDirection = Vector3.zero;
-    Vector2 lookInput = Vector2.zero;
+    public Vector2 lookInput = Vector2.zero;
     public float AimSensetivity=1;
 
     public readonly int movementXHash = Animator.StringToHash("MovementX");
     public readonly int movementYHash = Animator.StringToHash("MovementY");
     public readonly int isJumpingHash = Animator.StringToHash("isJumping");
     public readonly int isRunningHash = Animator.StringToHash("isRunning");
+    public readonly int isFiringHash = Animator.StringToHash("isFiring");
 
     private void Awake()
 	{
@@ -39,6 +41,7 @@ public class MovementComponent : MonoBehaviour
 
     void Update()
     {
+        //Movement
         if (playerController.isJumping) return;
         if (!(inputVector.magnitude > 0)) MoveDirection = Vector3.zero;
      
@@ -46,6 +49,26 @@ public class MovementComponent : MonoBehaviour
         float currentSpeed = playerController.isRunning ? runSpeed : WalkSpeed;
         Vector3 MovementDirection = MoveDirection * currentSpeed * Time.deltaTime;
         transform.position += MovementDirection;
+
+        //Aiming/Looking
+        followTarget.transform.rotation *= Quaternion.AngleAxis(lookInput.x * AimSensetivity, Vector3.up);
+        followTarget.transform.rotation *= Quaternion.AngleAxis(lookInput.y * AimSensetivity, Vector3.left);
+        var angles = followTarget.transform.localEulerAngles;
+        angles.z = 0;
+        var angle = followTarget.transform.localEulerAngles.x;
+        if(angle>180 && angle <340)
+        {
+            angles.x = 340;
+        }
+        else if(angle<180 && angle>10)
+		{
+            angles.x = 10;
+		}
+        followTarget.transform.localEulerAngles = angles;
+
+        //player rotation
+        transform.rotation = Quaternion.Euler(0, followTarget.transform.rotation.eulerAngles.y,0);
+        followTarget.transform.localEulerAngles = new Vector3(angles.x, 0, 0);
     }
 
     public void OnMovement(InputValue value)
@@ -67,14 +90,16 @@ public class MovementComponent : MonoBehaviour
         playerController.isAiming = value.isPressed;
 	}
 
-    public void onLook(InputValue value)
+    public void OnLook(InputValue value)
     {
         lookInput = value.Get<Vector2>();
 
     }
 
-    public void onFire(InputValue value)
+    public void OnFire(InputValue value)
     {
+        playerController.isFiring = value.isPressed;
+        PlayerAnimator.SetBool(isFiringHash, playerController.isFiring);
 
     }
     public void onReload(InputValue value)
