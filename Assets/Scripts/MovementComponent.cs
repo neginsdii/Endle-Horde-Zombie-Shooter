@@ -57,13 +57,13 @@ public class MovementComponent : MonoBehaviour
         var angles = followTarget.transform.localEulerAngles;
         angles.z = 0;
         var angle = followTarget.transform.localEulerAngles.x;
-        if(angle>180 && angle <340)
+        if(angle>180 && angle <300)
         {
-            angles.x = 340;
+            angles.x = 300;
         }
-        else if(angle<180 && angle>10)
+        else if(angle<180 && angle>70)
 		{
-            angles.x = 10;
+            angles.x = 70;
 		}
         followTarget.transform.localEulerAngles = angles;
 
@@ -97,17 +97,7 @@ public class MovementComponent : MonoBehaviour
 
     }
 
-    public void OnFire(InputValue value)
-    {
-        playerController.isFiring = value.isPressed;
-        PlayerAnimator.SetBool(isFiringHash, playerController.isFiring);
-
-    }
-    public void OnReload(InputValue value)
-    {
-        playerController.isReloading = value.isPressed;
-        PlayerAnimator.SetBool(isReloadingHash, playerController.isReloading);
-    }
+ 
     public void OnRun(InputValue value)
     {
         playerController.isRunning = value.isPressed;
